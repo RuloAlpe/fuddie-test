@@ -14,3 +14,10 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Route::get('/primer_ruta', function(){
+//     return response()->json([
+//         'name' => 'Abigail',
+//         'state' => 'CA'
+//     ]);
+// });
