@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -14,18 +15,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
         return response()->json(User::all());
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -37,7 +27,6 @@ class UserController extends Controller
     public function store(Request $request)
     {
         //
-        print_r($request);
     }
 
     /**
@@ -46,21 +35,16 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($api_token)
     {
-        //
-        return response()->json($user);
-    }
+        if($user = User::usuarioValido($api_token)){
+            return response()->json($user);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(User $user)
-    {
-        //
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Usuario no encontrado'
+        ]);
     }
 
     /**
@@ -81,12 +65,34 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy($api_token)
     {
-        //
+        $user = User::usuarioValido($api_token);
+        if($user){
+            if(User::hasAccount($user->id)){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Este usuario tiene vinculada por lo menos una cuenta'
+                ]);
+            }
+
+            if(User::deleteUser($user->id)){
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'El usuario ha sido eliminado correctamnete'
+                ]);
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Hubo un error, intentelo mas tarde'
+            ]);
+        }
     }
 
-    public function accounts_user(User $user){
-        echo "Account users";
+    public function accounts_user($api_token){
+        $user = DB::table('users')->where('api_token', $api_token)->first();
+        $accounts = DB::table('accounts')->where('id_user', $user->id)->get();
+
+        return response()->json($accounts);
     }
 }

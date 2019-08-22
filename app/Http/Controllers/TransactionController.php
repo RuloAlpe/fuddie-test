@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Transaction;
+use App\User;
+use App\Account;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -81,5 +83,39 @@ class TransactionController extends Controller
     public function destroy(Transaction $transaction)
     {
         //
+    }
+
+    public function by_user(Request $request){
+        if($user = User::usuarioValido($request->input('api_token'))){
+            $transactions = Transaction::getTransactionsUser($user->id);
+
+            return response()->json([
+                'status' => 'success',
+                "count" => count($transactions),
+                'transacciones' => $transactions
+            ]);
+        }else{
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuario no encontrado'
+            ]);
+        }
+    }
+
+    public function by_account(Request $request){
+        if($account = Account::accountValida($request->input('id_account'))){
+            $transactions = Transaction::getTransactionsAccount($account->id);
+
+            return response()->json([
+                'status' => 'success',
+                "count" => count($transactions),
+                'transacciones' => $transactions
+            ]);
+        }else{
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cuenta no encontrada'
+            ]);
+        }
     }
 }
