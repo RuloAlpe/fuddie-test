@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  
+  laravel-bd:
+    image: mysql:5.7
+    
+    enviroment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel_fuddie
+      MYSQL_USER: usr_fudie
+      MYSQL_PASWORD: pass_fudie
+    
+      ports:
+      8889: 3306
+    
+      volumen:
+      ./database/schema/: /var:lib/mysql
+    
+      network:
+      laravel_fuddie_net:
+        ipv4_address: 192.168.0.2
+
+
+  laravel_fuddie:
+    
+
